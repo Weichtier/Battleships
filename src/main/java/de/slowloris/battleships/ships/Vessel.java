@@ -11,4 +11,16 @@ public abstract class Vessel {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
     }
+
+    public int getHealthPerBlock() {
+        return healthPerBlock;
+    }
+
+    public int getSizeX() {
+        return sizeX;
+    }
+
+    public int getSizeY() {
+        return sizeY;
+    }
 }

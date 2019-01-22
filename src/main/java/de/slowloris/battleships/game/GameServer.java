@@ -1,4 +1,4 @@
-package de.slowloris.battleships.core.game;
+package de.slowloris.battleships.game;
 
 import de.slowloris.battleships.core.Main;
 
@@ -35,7 +35,8 @@ public class GameServer {
             e.printStackTrace();
         }
 
-        while (true){
+        /*
+         while (true){
             try {
                 Socket client = socket.accept();
                 players.add(client.getInetAddress().getHostAddress());
@@ -45,6 +46,7 @@ public class GameServer {
                 e.printStackTrace();
             }
         }
+        * */
 
     }
 

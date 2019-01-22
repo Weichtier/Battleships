@@ -24,9 +24,22 @@ public class GameCommand implements Command {
 
 
             }else if(args[0].equalsIgnoreCase("join")){
+                String[] target = args[1].split(":");
+                if(!(target.length == 2)){
+                    Main.consoleWriteln("Host format must be IP:Port");
+                    return false;
+                }
+                String ip = target[0];
+                String port = target[1];
 
                 if(args.length == 2){
-                    Main.consoleWriteln("Connecting to" + args[1]);
+                    try {
+                        Integer.parseInt(port);
+                    }catch (NumberFormatException exc){
+                        Main.consoleWriteln("Port must be a valid number");
+                        return false;
+                    }
+                    Main.startNewGame(ip, Integer.parseInt(port));
                 }else {
                     Main.consoleWriteln(syntax());
                 }

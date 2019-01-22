@@ -2,12 +2,14 @@ package de.slowloris.battleships.core;
 
 import de.slowloris.battleships.commands.HelpCommand;
 import de.slowloris.battleships.commands.GameCommand;
-import de.slowloris.battleships.core.game.Game;
-import de.slowloris.battleships.core.game.GameServer;
+import de.slowloris.battleships.commands.ShootCommand;
+import de.slowloris.battleships.game.Game;
+import de.slowloris.battleships.game.GameServer;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
+import org.jline.utils.InfoCmp;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -33,12 +35,13 @@ public class Main {
 
         commandHandler.registerCommand("game", new GameCommand());
         commandHandler.registerCommand("help", new HelpCommand());
+        commandHandler.registerCommand("shoot", new ShootCommand());
 
-        consoleWriteln("Welcome to Sink!");
+        consoleWriteln("Welcome to Battleships!");
         consoleWriteln("----------------");
 
         while (true){
-            String line = reader.readLine("sink> ");
+            String line = reader.readLine("battleships> ");
             String[] input = line.split(" ");
             String command = input[0];
             String[] cmdargs = Arrays.copyOfRange(input, 1, input.length);
@@ -58,6 +61,11 @@ public class Main {
         terminal.writer().println(s);
     }
 
+    public static void createGameScreenWithMessage(String message){
+        getGame().buildBattlefieldAIO();
+        consoleWriteln("Last Message: " + message);
+    }
+
     public static CommandHandler getCommandHandler() {
         return commandHandler;
     }
@@ -71,4 +79,28 @@ public class Main {
         startNewGame("127.0.0.1", port);
     }
 
+    public static void clearTerminal(){
+        reader.getTerminal().puts(InfoCmp.Capability.clear_screen);
+        reader.getTerminal().flush();
+    }
+
+    public static LineReader getReader() {
+        return reader;
+    }
+
+    public static Game getGame() {
+        return game;
+    }
+
+    public static boolean isPositive(int i){
+        return i >= 0;
+    }
+
+    public static boolean isBiggerThan(int i, int setpoint){
+        return i > setpoint;
+    }
+
+    public static boolean isSmallerThan(int i, int setpoint){
+        return i < setpoint;
+    }
 }
