@@ -159,7 +159,14 @@ public class Game {
             shipInput(vessel);
         }
 
-        createVessel(vessel, new Coordinates(x, y));
+        Coordinates coordinates = new Coordinates(x, y);
+
+        if(isVessel(coordinates)){
+            Main.consoleWriteln("There is already a Ship at X=" + x + " and Y=" + y + "!");
+            shipInput(vessel);
+        }
+
+        createVessel(vessel, coordinates);
     }
 
 }
