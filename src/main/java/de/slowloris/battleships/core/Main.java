@@ -1,5 +1,6 @@
 package de.slowloris.battleships.core;
 
+import de.slowloris.battleships.commands.EndCommand;
 import de.slowloris.battleships.commands.HelpCommand;
 import de.slowloris.battleships.commands.GameCommand;
 import de.slowloris.battleships.commands.ShootCommand;
@@ -36,6 +37,7 @@ public class Main {
         commandHandler.registerCommand("game", new GameCommand());
         commandHandler.registerCommand("help", new HelpCommand());
         commandHandler.registerCommand("shoot", new ShootCommand());
+        commandHandler.registerCommand("end", new EndCommand());
 
         consoleWriteln("Welcome to Battleships!");
         consoleWriteln("----------------");

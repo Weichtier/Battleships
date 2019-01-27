@@ -4,7 +4,9 @@ import de.slowloris.battleships.core.Coordinates;
 import de.slowloris.battleships.core.Main;
 import de.slowloris.battleships.ships.Speedboat;
 import de.slowloris.battleships.ships.Vessel;
+import org.json.JSONObject;
 
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,27 +15,36 @@ import java.util.Map;
 public class Game {
 
     private Socket socket;
+    private BufferedWriter writer;
+    private BufferedReader reader;
     private boolean ingame;
     private HashMap<Coordinates, Vessel> vessels = new HashMap<Coordinates, Vessel>();
     private ArrayList<Coordinates> hitted = new ArrayList<Coordinates>();
 
     public Game(String ip, int port) {
 
-        ingame = false;
+
+        //TODO: Set ingame to false when working
+        ingame = true;
 
         Main.consoleWriteln("Joining Gameserver...");
 
-        //TODO: Create Socketserver
+        try {
+            socket = new Socket(ip, port);
+            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-        Main.consoleWriteln("Joined Gameserver on " + ip + ":" + port + "!");
-
+        } catch (IOException e) {
+            Main.consoleWriteln("Error while joining Gameserver on " + ip + ":" + port);
+            return;
+        }
 
         Main.clearTerminal();
 
         Main.consoleWriteln("------------");
         Main.consoleWriteln("New Game");
         Main.consoleWriteln("------------\n");
-        Main.consoleWriteln("Input second Speedboat Coordinates: (Example for X=2 and Y=6: 2x6)");
+        Main.consoleWriteln("Input first Speedboat Coordinates: (Example for X=2 and Y=6: 2x6)");
         shipInput(new Speedboat());
         Main.consoleWriteln("Input second Speedboat Coordinates: ");
         shipInput(new Speedboat());
@@ -44,9 +55,45 @@ public class Game {
         Main.consoleWriteln("Input fifth Speedboat Coordinates: ");
         shipInput(new Speedboat());
 
-        buildBattlefieldAIO();
+        createGameScreenWithMessage("Waiting for Server to start...");
 
-        ingame = true;
+        try {
+            writer.write(new JSONObject().put("data", "client_ready").put("value", "true").toString());
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+
+        final String[] line = new String[1];
+
+        Thread clientThread = new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        if (((line[0] = reader.readLine()) != null)) {
+
+                            JSONObject obj = new JSONObject(line[0]);
+                            String data = obj.getString("data");
+
+                            if (data.equals("game_ready") && !ingame) {
+                                Main.createGameScreenWithMessage("Game Started!");
+                                ingame = true;
+                            } else if (data.equals("your_turn")) {
+                                Main.createGameScreenWithMessage("You are Playing");
+                            } else if (data.equals("other_turn")) {
+                                Main.createGameScreenWithMessage("Enemy is Playing");
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        clientThread.start();
 
     }
 
@@ -167,6 +214,11 @@ public class Game {
         }
 
         createVessel(vessel, coordinates);
+    }
+
+    private void createGameScreenWithMessage(String message){
+        buildBattlefieldAIO();
+        Main.consoleWriteln("Last Message: " + message);
     }
 
 }
